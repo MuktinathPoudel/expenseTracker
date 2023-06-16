@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Expense Tracker</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div id="loginPage">
+      <h1>Login</h1>
+      <form>
+        <input type="email" placeholder="Email" id="email">
+        <input type="password" placeholder="Password" id="password">
+        <button type="button" onclick="login()">Login</button>
+      </form>
+    </div>
+
+    <div id="expenseTracker" style="display: none;">
+      <h1>Expense Tracker</h1>
+
+      <div id="expenseForm">
+        <h2>Add Expense</h2>
+        <form>
+          <input type="text" placeholder="Expense Name" id="expenseName">
+          <input type="number" placeholder="Expense Amount" id="expenseAmount">
+          <button type="button" onclick="addExpense()">Add Expense</button>
+        </form>
+      </div>
+
+      <div id="expenseList">
+        <h2>Current Month's Expenses</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Expense Name</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody id="expenseTableBody">
+          </tbody>
+        </table>
+      </div>
+
+      <div id="chartsContainer">
+        <div class="chart">
+          <h2>Pie Chart</h2>
+          <canvas id="pieChart"></canvas>
+        </div>
+        <div class="chart">
+          <h2>Histogram</h2>
+          <canvas id="histogram"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+input, button {
+  display: block;
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+table {
+  margin: 20px auto;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+}
+
+#chartsContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.chart {
+  width: 48%;
+}
+function login() {
+  var email = document.getElementById('email').value;
+  var password = document.getElementById('password').value;
+
+  // Implement server-side code for login functionality and authentication
+  // Here, we're assuming a successful login and hiding the login section
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('expenseTracker').style.display = 'block';
+}
+
+function addExpense() {
+  var expenseName = document.getElementById('expenseName').value;
+  var expenseAmount = document.getElementById('expenseAmount').value;
+
+  // Store the expense data or send it to the server for storage
+
+  var expenseTableBody = document.getElementById('expenseTableBody');
+  var newRow = document.createElement('tr');
+  var nameCell = document.createElement('td');
+  var amountCell = document.createElement('td');
+
+  nameCell.textContent = expenseName;
+  amountCell.textContent = '$' + expenseAmount;
+
+  newRow.appendChild(nameCell);
+  newRow.appendChild(amountCell);
+  expenseTableBody.appendChild(newRow);
+
+  generateCharts();
+}
+
+function generateCharts() {
+  var expenseRows = document.querySelectorAll('#expenseTableBody tr');
+  var expenseNames = [];
+  var expenseAmounts = [];
+
+  for (var i = 0; i < expenseRows.length; i++) {
+    var expenseName = expenseRows[i].querySelector('td:first-child').textContent;
+    var expenseAmount = parseFloat(expenseRows[i].querySelector('td:last-child').textContent.replace('$', ''));
+
+    expenseNames.push(expenseName);
+    expenseAmounts.push(expenseAmount);
+  }
+
+  var pieChartCtx = document.getElementById('pieChart').getContext('2d');
+  var histogramCtx = document.getElementById('histogram').getContext('2d');
+
+  var pieChart = new Chart(pieChartCtx, {
+    type: 'pie',
+    data: {
+      labels: expenseNames,
+      datasets: [{
+        data: expenseAmounts,
+        backgroundColor: [
+          '#FF6384',
+          '#36A2EB',
+          '#FFCE56',
+          '#33FFB5',
+          '#A233FF'
+        ],
+        borderWidth: 1
+      }]
+    }
+  });
+
+  var histogramChart = new Chart(histogramCtx, {
+    type: 'bar',
+    data: {
+      labels: expenseNames,
+      datasets: [{
+        data: expenseAmounts,
+        backgroundColor: '#36A2EB',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
